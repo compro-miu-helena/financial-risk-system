@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@mermaid-js/mermaid-cli": "^11.12.0"
+  },
+  "_npx": {
+    "packages": [
+      "@mermaid-js/mermaid-cli"
+    ]
+  }
+}

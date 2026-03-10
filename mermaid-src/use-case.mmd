@@ -1,0 +1,31 @@
+flowchart LR
+    BU[Business User]
+    AU[Authorized Parameter Admin]
+    TDS[Trade Data System]
+    RDS[Reference Data System]
+    IDP[Identity Provider]
+    CMS[Central Monitoring Service]
+
+    subgraph FRS[Financial Risk System]
+        UC1((Authenticate User))
+        UC2((Import Trade Data))
+        UC3((Import Counterparty Data))
+        UC4((Generate Risk Report))
+        UC5((Download or Receive Risk Report))
+        UC6((Maintain Risk Parameters))
+        UC7((View Audit Trail))
+        UC8((Send Monitoring Alert))
+    end
+
+    BU --> UC1
+    BU --> UC5
+    BU --> UC7
+    AU --> UC1
+    AU --> UC6
+    TDS --> UC2
+    RDS --> UC3
+    IDP --> UC1
+    UC4 --> UC2
+    UC4 --> UC3
+    UC4 --> UC8
+    UC8 --> CMS

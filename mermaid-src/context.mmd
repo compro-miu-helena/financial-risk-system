@@ -1,0 +1,16 @@
+flowchart LR
+    TDS[Trade Data System\nXML export of trades]
+    RDS[Reference Data System\nXML export of counterparties]
+    IDP[Bank Identity Provider\nAuthentication and authorization]
+    CMS[Central Monitoring Service\nSNMP trap receiver]
+    USERS[Business Users\nView risk reports]
+    ADMINS[Parameter Admins\nMaintain calculation parameters]
+
+    FRS[Financial Risk System]
+
+    TDS -->|Daily trade XML| FRS
+    RDS -->|Daily counterparty XML| FRS
+    IDP <--> |Login, roles| FRS
+    FRS -->|CSV risk report| USERS
+    ADMINS <--> |Parameter maintenance| FRS
+    FRS -->|SNMP traps| CMS

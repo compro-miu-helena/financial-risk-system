@@ -1,0 +1,41 @@
+sequenceDiagram
+    autonumber
+    participant SCH as Scheduler
+    participant ING as Ingestion Service
+    participant TDS as Trade Data System
+    participant RDS as Reference Data System
+    participant DB as Operational Database
+    participant CALC as Risk Calculation Service
+    participant PST as Parameter Store
+    participant REP as Report Distribution Service
+    participant AUD as Audit Log
+    participant CMS as Central Monitoring Service
+    participant USR as Authorized Business Users
+
+    SCH->>ING: Start nightly batch
+    ING->>TDS: Read trade XML export
+    TDS-->>ING: Trade XML
+    ING->>RDS: Read counterparty XML export
+    RDS-->>ING: Counterparty XML
+    ING->>ING: Validate and parse files
+    ING->>DB: Store imported trades and counterparties
+    ING->>AUD: Log import status and retained input references
+
+    SCH->>CALC: Start risk calculation
+    CALC->>DB: Load imported trades and counterparties
+    CALC->>PST: Load active calculation parameters
+    PST-->>CALC: Parameter set
+    CALC->>CALC: Enrich trades and calculate exposure by counterparty
+    CALC->>AUD: Log calculation results and per-counterparty errors
+    CALC-->>REP: Risk results dataset
+
+    REP->>REP: Generate CSV report
+    REP->>DB: Store report metadata
+    REP->>AUD: Log report generation
+    REP->>USR: Distribute report
+
+    alt Report not generated before 9am Singapore
+        REP->>CMS: Send SNMP trap
+    else Fatal processing error
+        CALC->>CMS: Send SNMP trap
+    end

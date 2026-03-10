@@ -1,0 +1,24 @@
+flowchart TD
+    A([Start]) --> B[Receive scheduled trade XML and counterparty XML]
+    B --> C[Validate file availability and format]
+    C -->|Invalid or missing| D[Log error and raise fatal alert]
+    D --> E([End])
+    C -->|Valid| F[Load trade data]
+    F --> G[Load counterparty data]
+    G --> H[Load active risk parameters]
+    H --> I[Join trades with counterparties]
+    I --> J{More counterparties to process?}
+    J -->|Yes| K[Calculate counterparty risk]
+    K --> L{Calculation successful?}
+    L -->|Yes| M[Store result in report dataset]
+    L -->|No| N[Log calculation error and continue]
+    M --> J
+    N --> J
+    J -->|No| O[Generate CSV risk report]
+    O --> P[Store report and input-file references for audit]
+    P --> Q[Distribute report to authorized users]
+    Q --> R{Completed before 9am Singapore?}
+    R -->|Yes| S[Log successful report generation]
+    R -->|No| T[Log breach and send SNMP alert]
+    S --> U([End])
+    T --> U

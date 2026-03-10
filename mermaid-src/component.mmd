@@ -1,0 +1,32 @@
+flowchart TD
+    subgraph RiskAPI[Risk API / Processing Components]
+        AUTH[Auth Controller]
+        PARAM[Parameter Management Component]
+        IMPORT[Import Orchestrator]
+        TRADE[Trade XML Parser]
+        CP[Counterparty XML Parser]
+        JOIN[Data Enrichment Component]
+        ENGINE[Risk Engine]
+        REPORT[Report Builder]
+        AUDIT[Audit Logger]
+        ALERT[Monitoring and Alert Component]
+        REPO[Repositories]
+    end
+
+    AUTH --> REPO
+    PARAM --> REPO
+    PARAM --> AUDIT
+    IMPORT --> TRADE
+    IMPORT --> CP
+    TRADE --> REPO
+    CP --> REPO
+    IMPORT --> AUDIT
+    JOIN --> REPO
+    ENGINE --> JOIN
+    ENGINE --> REPO
+    ENGINE --> AUDIT
+    REPORT --> ENGINE
+    REPORT --> REPO
+    REPORT --> AUDIT
+    REPORT --> ALERT
+    ALERT --> AUDIT

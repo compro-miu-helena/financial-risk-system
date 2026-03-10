@@ -1,0 +1,39 @@
+flowchart LR
+    subgraph Ext[External Systems]
+        TDS[Trade Data System]
+        RDS[Reference Data System]
+        IDP[Identity Provider]
+        CMS[Central Monitoring Service]
+        USERS[Business Users]
+    end
+
+    subgraph FRS[Financial Risk System]
+        UI[Web Application\nReport access and parameter admin]
+        API[Risk API\nAuthentication, orchestration, audit]
+        ING[Ingestion Service\nXML import and validation]
+        CALC[Risk Calculation Service\nEnrichment and exposure calculation]
+        DIST[Report Distribution Service\nCSV generation and delivery]
+        SCHED[Scheduler / Batch Runner\nNightly processing]
+        DB[(Operational Database)]
+        FILES[(Archive Storage\nInput files and reports)]
+    end
+
+    TDS --> ING
+    RDS --> ING
+    IDP <--> UI
+    IDP <--> API
+    USERS <--> UI
+    UI <--> API
+    SCHED --> ING
+    SCHED --> CALC
+    SCHED --> DIST
+    ING --> DB
+    ING --> FILES
+    CALC <--> DB
+    DIST <--> DB
+    DIST --> FILES
+    DIST --> USERS
+    API <--> DB
+    API <--> FILES
+    API --> CMS
+    SCHED --> CMS
