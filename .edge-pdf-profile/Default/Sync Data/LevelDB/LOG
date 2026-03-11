@@ -1,2 +1,3 @@
-2026/03/11-14:30:28.346 590 Creating DB C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\b32a1a21eca7d062\.edge-pdf-profile\Default\Sync Data\LevelDB since it was missing.
-2026/03/11-14:30:28.390 590 Reusing MANIFEST C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\b32a1a21eca7d062\.edge-pdf-profile\Default\Sync Data\LevelDB/MANIFEST-000001
+2026/03/11-14:31:31.316 5250 Reusing MANIFEST C:\Users\mbeua\Área de Trabalho\financial-risk-system\.edge-pdf-profile\Default\Sync Data\LevelDB/MANIFEST-000001
+2026/03/11-14:31:31.320 5250 Recovering log #3
+2026/03/11-14:31:31.322 5250 Reusing old log C:\Users\mbeua\Área de Trabalho\financial-risk-system\.edge-pdf-profile\Default\Sync Data\LevelDB/000003.log 

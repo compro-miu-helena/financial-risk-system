@@ -1,2 +1,3 @@
-2026/03/11-14:30:29.113 590 Creating DB C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\b32a1a21eca7d062\.edge-pdf-profile\Default\shared_proto_db since it was missing.
-2026/03/11-14:30:29.141 590 Reusing MANIFEST C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\b32a1a21eca7d062\.edge-pdf-profile\Default\shared_proto_db/MANIFEST-000001
+2026/03/11-14:31:32.197 31e8 Reusing MANIFEST C:\Users\mbeua\Área de Trabalho\financial-risk-system\.edge-pdf-profile\Default\shared_proto_db/MANIFEST-000001
+2026/03/11-14:31:32.201 31e8 Recovering log #3
+2026/03/11-14:31:32.202 31e8 Reusing old log C:\Users\mbeua\Área de Trabalho\financial-risk-system\.edge-pdf-profile\Default\shared_proto_db/000003.log 
