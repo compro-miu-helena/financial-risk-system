@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Financial Risk System Architecture Analysis</title>
+<style>
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #1c2430;
+    margin: 40px 56px;
+    line-height: 1.45;
+    font-size: 12px;
+}
+h1, h2, h3 {
+    color: #102a43;
+    margin-top: 22px;
+    margin-bottom: 10px;
+}
+h1 {
+    font-size: 24px;
+    border-bottom: 2px solid #bcccdc;
+    padding-bottom: 8px;
+}
+h2 {
+    font-size: 18px;
+}
+h3 {
+    font-size: 14px;
+}
+p {
+    margin: 8px 0;
+}
+ul, ol {
+    margin: 6px 0 10px 20px;
+}
+li {
+    margin: 4px 0;
+}
+code {
+    font-family: Consolas, monospace;
+    background: #f0f4f8;
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+@page {
+    size: A4;
+    margin: 16mm;
+}
+</style>
+</head>
+<body>
+<h1>Financial Risk System Architecture Analysis</h1>
+<h2>1. Architectural Characteristics</h2>
+<p>The most important architectural characteristics for this system are:</p>
+<ol>
+<li>Performance and timeliness</li>
+<li>Availability</li>
+<li>Security</li>
+<li>Auditability and traceability</li>
+<li>Modifiability</li>
+<li>Reliability and recoverability</li>
+<li>Scalability</li>
+<li>Interoperability</li>
+</ol>
+<h2>2. Quality Attribute Scenarios</h2>
+<h3>2.1 Performance and Timeliness</h3>
+<p>Scenario 1:</p>
+<ul>
+<li>Source: Nightly batch scheduler</li>
+<li>Stimulus: The 5pm New York XML exports become available.</li>
+<li>Environment: Normal end-of-day processing.</li>
+<li>Artifact: Ingestion, calculation, and report distribution pipeline.</li>
+<li>Response: The system imports files, calculates exposure, generates the CSV report, and distributes it to authorized users.</li>
+<li>Response measure: The report is available before 9am Singapore time.</li>
+</ul>
+<p>Scenario 2:</p>
+<ul>
+<li>Source: Business user</li>
+<li>Stimulus: A user requests an already generated report.</li>
+<li>Environment: Normal business-hours usage.</li>
+<li>Artifact: Web application and report storage.</li>
+<li>Response: The system authenticates the user, checks authorization, and serves the report.</li>
+<li>Response measure: Report download starts within 5 seconds for normal network conditions.</li>
+</ul>
+<h3>2.2 Availability</h3>
+<p>Scenario 1:</p>
+<ul>
+<li>Source: Business user</li>
+<li>Stimulus: A user accesses the system while no batch is running.</li>
+<li>Environment: Routine operation.</li>
+<li>Artifact: Web application, API, report storage.</li>
+<li>Response: The system allows authenticated users to access available reports.</li>
+<li>Response measure: Report access is available 24x7 with less than 30 minutes planned or unplanned downtime per day.</li>
+</ul>
+<p>Scenario 2:</p>
+<ul>
+<li>Source: Infrastructure fault</li>
+<li>Stimulus: The report distribution service fails during nightly processing.</li>
+<li>Environment: Active batch window.</li>
+<li>Artifact: Batch workflow and monitoring components.</li>
+<li>Response: The failure is logged, an SNMP trap is sent for fatal failure, and operators can restart or resume processing.</li>
+<li>Response measure: Either the report is still generated before 9am Singapore, or the monitoring service is alerted immediately.</li>
+</ul>
+<h3>2.3 Security</h3>
+<p>Scenario 1:</p>
+<ul>
+<li>Source: Unauthorized internal user</li>
+<li>Stimulus: The user attempts to open a risk report.</li>
+<li>Environment: User is connected to the bank network but lacks the required role.</li>
+<li>Artifact: Web application, API, identity integration.</li>
+<li>Response: The system authenticates the user, checks authorization, and denies access.</li>
+<li>Response measure: Unauthorized report access is blocked and logged in the audit trail.</li>
+</ul>
+<p>Scenario 2:</p>
+<ul>
+<li>Source: Authorized business user without admin rights</li>
+<li>Stimulus: The user attempts to change risk calculation parameters.</li>
+<li>Environment: Normal operation.</li>
+<li>Artifact: Parameter management component.</li>
+<li>Response: The system rejects the update because the user lacks the admin role.</li>
+<li>Response measure: No parameter change is persisted and the rejected action is logged.</li>
+</ul>
+<h3>2.4 Auditability and Traceability</h3>
+<p>Scenario 1:</p>
+<ul>
+<li>Source: Auditor or operations analyst</li>
+<li>Stimulus: They need to determine which inputs produced a specific report.</li>
+<li>Environment: Post-processing review.</li>
+<li>Artifact: Audit log, archive storage, report metadata.</li>
+<li>Response: The system shows the report identifier, generation timestamp, parameter version, and exact input files used.</li>
+<li>Response measure: The full lineage of a report can be reconstructed without manual correlation across systems.</li>
+</ul>
+<p>Scenario 2:</p>
+<ul>
+<li>Source: Parameter administrator</li>
+<li>Stimulus: A risk calculation parameter is updated.</li>
+<li>Environment: Normal administration.</li>
+<li>Artifact: Parameter management and audit logging.</li>
+<li>Response: The old value, new value, user identity, timestamp, and reason/context are recorded.</li>
+<li>Response measure: Every parameter modification is attributable to a specific authorized user.</li>
+</ul>
+<h3>2.5 Modifiability</h3>
+<p>Scenario 1:</p>
+<ul>
+<li>Source: Risk team</li>
+<li>Stimulus: A new external parameter is added to the calculation.</li>
+<li>Environment: Planned enhancement.</li>
+<li>Artifact: Parameter store, admin UI, risk engine.</li>
+<li>Response: The new parameter is added with limited change to surrounding components.</li>
+<li>Response measure: The change is implemented without redesigning ingestion, reporting, or authentication components.</li>
+</ul>
+<p>Scenario 2:</p>
+<ul>
+<li>Source: Enterprise architecture team</li>
+<li>Stimulus: The current Reference Data System is replaced by the new organization-wide reference system within 3 months.</li>
+<li>Environment: Planned system integration change.</li>
+<li>Artifact: Counterparty ingestion interface.</li>
+<li>Response: The system adapts by replacing or extending the reference-data adapter/parser.</li>
+<li>Response measure: The change is isolated mainly to the ingestion boundary and does not require rewriting the risk engine.</li>
+</ul>
+<h3>2.6 Reliability and Recoverability</h3>
+<p>Scenario 1:</p>
+<ul>
+<li>Source: Malformed trade or counterparty file</li>
+<li>Stimulus: XML input is missing, corrupted, or invalid.</li>
+<li>Environment: Nightly batch processing.</li>
+<li>Artifact: Ingestion service.</li>
+<li>Response: The system validates the file, logs the error, stops or quarantines invalid input as appropriate, and raises a fatal alert when processing cannot safely continue.</li>
+<li>Response measure: Invalid input never produces a silent wrong report.</li>
+</ul>
+<p>Scenario 2:</p>
+<ul>
+<li>Source: Data quality issue</li>
+<li>Stimulus: One counterparty record is missing reference data needed for enrichment.</li>
+<li>Environment: Batch calculation.</li>
+<li>Artifact: Enrichment and risk engine.</li>
+<li>Response: The system logs the per-counterparty error and continues processing other counterparties.</li>
+<li>Response measure: A single bad record does not cause total batch failure unless policy requires full-stop behavior.</li>
+</ul>
+<h3>2.7 Scalability</h3>
+<p>Scenario 1:</p>
+<ul>
+<li>Source: Business growth</li>
+<li>Stimulus: Trade volume grows from about 5,000 trades to roughly 23,000+ trades over five years.</li>
+<li>Environment: Nightly batch processing.</li>
+<li>Artifact: Ingestion pipeline, database, risk engine.</li>
+<li>Response: The system processes the larger data set within the batch window.</li>
+<li>Response measure: End-to-end processing still completes before 9am Singapore.</li>
+</ul>
+<p>Scenario 2:</p>
+<ul>
+<li>Source: Global user base</li>
+<li>Stimulus: 40 to 50 users access reports from London, New York, and Singapore.</li>
+<li>Environment: Peak report-consumption period after report publication.</li>
+<li>Artifact: Web app, API, report storage.</li>
+<li>Response: The system supports concurrent report access without degrading batch execution.</li>
+<li>Response measure: Concurrent access does not delay report availability or cause service instability.</li>
+</ul>
+<h3>2.8 Interoperability</h3>
+<p>Scenario 1:</p>
+<ul>
+<li>Source: Trade Data System and Reference Data System</li>
+<li>Stimulus: Daily XML exports are delivered in the agreed format.</li>
+<li>Environment: Nightly batch processing.</li>
+<li>Artifact: Ingestion adapters and XML parsers.</li>
+<li>Response: The system reads and validates both XML formats and maps them into the internal model.</li>
+<li>Response measure: Both source feeds are ingested without manual intervention.</li>
+</ul>
+<p>Scenario 2:</p>
+<ul>
+<li>Source: Central Monitoring Service</li>
+<li>Stimulus: A fatal processing failure occurs or the report misses the 9am Singapore deadline.</li>
+<li>Environment: Runtime fault condition.</li>
+<li>Artifact: Monitoring and alert component.</li>
+<li>Response: The system emits an SNMP trap with enough context for operations follow-up.</li>
+<li>Response measure: The central monitoring platform receives and can correlate the alert.</li>
+</ul>
+<h2>3. Risks in the Proposed Architecture</h2>
+<h3>Risk 1: Tight coupling to file formats and source systems</h3>
+<p>The ingestion design assumes stable XML exports from TDS and the current RDS. The reference system is already known to be changing within three months, so the current design risks expensive rework if format or delivery mechanics change.</p>
+<p>Impact:</p>
+<ul>
+<li>Delayed migration to the new reference platform</li>
+<li>Broken nightly batch after source-system change</li>
+<li>Increased maintenance cost around parsers and mapping logic</li>
+</ul>
+<h3>Risk 2: Single nightly batch window creates operational concentration risk</h3>
+<p>The core workflow is batch-oriented and deadline-driven. If ingestion or calculation starts late, fails, or needs rerun, there is limited time before 9am Singapore.</p>
+<p>Impact:</p>
+<ul>
+<li>Missed reporting deadline</li>
+<li>Repeated manual intervention by operations</li>
+<li>Higher business risk from stale or unavailable reports</li>
+</ul>
+<h3>Risk 3: Single operational database may become a bottleneck</h3>
+<p>The database is used for imported data, calculated results, report metadata, audit information, and parameter storage. That concentration is simple initially but can turn into contention or recovery complexity.</p>
+<p>Impact:</p>
+<ul>
+<li>Slower batch runs</li>
+<li>Contention between report access and nightly processing</li>
+<li>Larger blast radius during database incidents</li>
+</ul>
+<h3>Risk 4: Parameter changes can invalidate report consistency</h3>
+<p>If parameters are updated close to or during batch execution, the system may produce results based on an unclear or partially applied parameter set unless versioning and runtime locking are explicit.</p>
+<p>Impact:</p>
+<ul>
+<li>Non-repeatable risk numbers</li>
+<li>Audit disputes over which parameter set was used</li>
+<li>Potentially incorrect business decisions</li>
+</ul>
+<h3>Risk 5: Per-record error continuation can hide material data quality problems</h3>
+<p>Continuing after individual counterparty calculation failures improves resilience, but it also creates a risk that the final report looks complete while excluding important exposures.</p>
+<p>Impact:</p>
+<ul>
+<li>Incomplete or misleading risk report</li>
+<li>Hidden data quality issues</li>
+<li>Loss of trust in the system</li>
+</ul>
+<h3>Risk 6: Report distribution approach may expose sensitive data</h3>
+<p>The architecture shows report distribution to users but does not yet define whether reports are downloaded from a secured portal, emailed, copied to shares, or cached locally. Some distribution mechanisms would create unnecessary data leakage risk.</p>
+<p>Impact:</p>
+<ul>
+<li>Unauthorized disclosure of risk data</li>
+<li>Difficulty enforcing revocation and least privilege</li>
+<li>Weak auditability of who accessed which report</li>
+</ul>
+<h3>Risk 7: Monitoring is reactive but not necessarily diagnostic</h3>
+<p>SNMP traps for fatal errors and missed deadlines satisfy the requirement, but they may not be enough for fast root-cause analysis without structured batch state, correlation IDs, and richer operational telemetry.</p>
+<p>Impact:</p>
+<ul>
+<li>Longer incident resolution time</li>
+<li>Repeated failures due to poor observability</li>
+<li>More manual log inspection by support staff</li>
+</ul>
+<h3>Risk 8: Archive retention design may become hard to manage over one year</h3>
+<p>Input files and generated reports must be retained for one year. Without a clear archival strategy, storage growth, indexing, retrieval, and integrity verification may become operational pain points.</p>
+<p>Impact:</p>
+<ul>
+<li>Difficult audits</li>
+<li>Storage inefficiency</li>
+<li>Slow evidence retrieval during investigations</li>
+</ul>
+<h2>4. Risk Mitigation Options</h2>
+<h3>Mitigations for Risk 1</h3>
+<ul>
+<li>Introduce explicit adapter interfaces for trade and counterparty imports.</li>
+<li>Isolate XML parsing from the canonical domain model.</li>
+<li>Version the import schema and support side-by-side parsers during RDS migration.</li>
+<li>Add contract tests using sample source-system files.</li>
+</ul>
+<h3>Mitigations for Risk 2</h3>
+<ul>
+<li>Persist checkpoint state after each major batch stage.</li>
+<li>Make ingestion, calculation, and report generation restartable and idempotent.</li>
+<li>Start processing as soon as files are available instead of waiting for a single late batch trigger if operationally possible.</li>
+<li>Define runbooks and automated retries for transient failures.</li>
+</ul>
+<h3>Mitigations for Risk 3</h3>
+<ul>
+<li>Separate logical schemas or storage areas for operational data, audit data, and archived report metadata.</li>
+<li>Add read-optimized access paths or replicas for report retrieval if needed.</li>
+<li>Archive old batch data out of the hot operational store on a scheduled basis.</li>
+<li>Load-test the database against the five-year growth forecast.</li>
+</ul>
+<h3>Mitigations for Risk 4</h3>
+<ul>
+<li>Version calculation parameters and always bind a batch run to a single immutable parameter version.</li>
+<li>Prevent parameter edits while a batch is running, or defer activation until the next run.</li>
+<li>Record the parameter version in both audit logs and report metadata.</li>
+<li>Support rollback to the previous approved parameter set.</li>
+</ul>
+<h3>Mitigations for Risk 5</h3>
+<ul>
+<li>Define severity thresholds for data quality failures.</li>
+<li>Mark the report as partial when error counts exceed a threshold.</li>
+<li>Include a data-quality summary in the report metadata and operations dashboard.</li>
+<li>Route high-severity enrichment failures to operations for immediate review.</li>
+</ul>
+<h3>Mitigations for Risk 6</h3>
+<ul>
+<li>Prefer report access through the authenticated web application instead of broad file or email distribution.</li>
+<li>Enforce role-based authorization at the API and report-download layers.</li>
+<li>Log every report access event with user, report ID, and timestamp.</li>
+<li>Encrypt data at rest and in transit inside the bank network.</li>
+</ul>
+<h3>Mitigations for Risk 7</h3>
+<ul>
+<li>Add structured application logs with correlation IDs per batch run.</li>
+<li>Track stage-level metrics such as import duration, number of rejected records, calculation duration, and distribution status.</li>
+<li>Provide an operations dashboard for nightly batch status.</li>
+<li>Include actionable context in SNMP alerts, such as batch ID and failing component.</li>
+</ul>
+<h3>Mitigations for Risk 8</h3>
+<ul>
+<li>Use dedicated archive storage with lifecycle management and immutable retention settings where appropriate.</li>
+<li>Store metadata indexes for fast retrieval of files by report ID, date, and batch ID.</li>
+<li>Periodically verify archive readability and integrity.</li>
+<li>Define purge automation for records older than the one-year retention requirement.</li>
+</ul>
+<h2>5. Recommended Architectural Priorities</h2>
+<p>If the architecture is refined further, the highest-priority decisions should be:</p>
+<ol>
+<li>Make batch execution restartable and parameter-versioned.</li>
+<li>Isolate source-system integration behind explicit adapters because the reference data source is changing soon.</li>
+<li>Treat report delivery as a secured portal capability, not an uncontrolled file-distribution problem.</li>
+<li>Strengthen observability beyond basic SNMP traps so missed deadlines can be diagnosed quickly.</li>
+</ol>
+</body>
+</html>
